@@ -3,6 +3,10 @@
 # If a tag was used, push to the relevant channels
 name: main
 
+env:
+  NAME: GroupHorizons
+  BIN_PATH: ""
+
 on:
   push:
     branches:
@@ -10,14 +14,12 @@ on:
     paths-ignore:
       - README.md
       - branch.yml
-  workflow_call: {}
+  workflow_dispatch: {}
 
 jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    # outputs:
-    #   tag-version: ${{ steps.version-tag.outputs.new_tag }}
 
     steps:
       # Checkout (without LFS)
@@ -59,17 +61,6 @@ jobs:
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
-      # # Tag
-      # - name: Bump version and push pre-release tag
-      #   id: version-tag
-      #   uses: anothrNick/github-tag-action@1.36.0
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     WITH_V: true
-      #     RELEASE_BRANCHES: "none" # automatic branches should be pre-release. Releases will be made intentionally.
-      #     DEFAULT_BUMP: patch
-      #     PRERELEASE_SUFFIX: "alpha"
-
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -91,8 +82,6 @@ jobs:
       # Checkout (without LFS)
       - name: Checkout repository
         uses: actions/checkout@v2
-        # with:
-        #   ref: 'tags/${{ needs.testAndTag.outputs.tag-version }}'
 
       # Git LFS
       - name: Create LFS file list
@@ -127,25 +116,33 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
-          buildName: Pipelines-${{ matrix.targetPlatform }}
+          buildName: ${{ env.NAME}}-${{ matrix.targetPlatform }}
           versioning: Semantic
 
-      # Output entire workspace file layout
-      - name: List files to be zipped
-        run: ls -R build/${{ matrix.targetPlatform }}/Pipelines-${{ matrix.targetPlatform }}/
+      # Set BIN_PATH env var
+      - name: Correct path specificaly for WebGL
+        if: matrix.targetPlatform == 'WebGL'
+        run: |
+          echo "BIN_Path=build/WebGL/${{ env.NAME }}-WebGL" >> $GITHUB_ENV
+
+      - name: Path for non-WebGL
+        if: matrix.targetPlatform != 'WebGL'
+        run: |
+          echo "BIN_Path=build/${{ matrix.targetPlatform }}" >> $GITHUB_ENV
 
       # Zip
-      - name: Zip build output
+      - name: Install zip
         uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r Pipelines-${{ matrix.targetPlatform }}-${{ steps.buildStep.outputs.buildVersion }}.zip build/${{ matrix.targetPlatform }}/Pipelines-${{ matrix.targetPlatform }}/
 
+      - name: Zip output
+        run: sudo zip -r ./${{ env.NAME}}-${{ matrix.targetPlatform }}-${{ steps.buildStep.outputs.buildVersion }}.zip .
+        working-directory: ./${{env.BIN_Path}}
       # Output
-      - name: Append build result to artifact
+      - name: Append zipped build result to artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Pipeline-${{ github.sha }}
-          path: Pipelines-${{ matrix.targetPlatform }}-${{ steps.buildStep.outputs.buildVersion }}.zip
+          name: ${{ env.NAME}}-${{ github.sha }}
+          path: ./${{env.BIN_Path}}/${{ env.NAME}}-${{ matrix.targetPlatform }}-${{ steps.buildStep.outputs.buildVersion }}.zip
           if-no-files-found: error
 
   release:
@@ -156,7 +153,7 @@ jobs:
       - name: Retrieve all build results from artifact
         uses: actions/download-artifact@v2
         with:
-          name: Pipeline-${{ github.sha }}
+          name: ${{ env.NAME}}-${{ github.sha }}
           path: bin
 
       - name: Replace latest pre-release
@@ -170,9 +167,10 @@ jobs:
 
       - name: Upload webgl to itch.io
         uses: robpc/itchio-upload-action@v1
+	if: ${{ matrix.targetPlatform == 'WebGL' }}
         with:
-          path: bin/Pipelines-WebGL-${{ needs.build.outputs.version }}.zip
-          project: boersnoes/pipelines
+          path: bin/${{ env.NAME}}-WebGL-${{ needs.build.outputs.version }}.zip
+          project: boersnoes/${{ env.NAME}}
           channel: html5-alpha
           version: ${{ needs.build.outputs.version }}
           api-key: ${{ secrets.ITCHIO_API_KEY }}
