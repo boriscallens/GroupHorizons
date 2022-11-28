@@ -111,7 +111,7 @@ jobs:
       # Build
       - name: Build project
         id: buildStep
-        uses: game-ci/unity-builder@v3
+        uses: game-ci/unity-builder@v2
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
