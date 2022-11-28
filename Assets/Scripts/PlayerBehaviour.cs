@@ -18,6 +18,9 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void Update()
     {
+        // This input scheme is traditional, but quite hard.
+        // Should we do a more intuitive one?
+
         _thrusting = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow);
         var newTurnDirection = 0.0f;
         if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))

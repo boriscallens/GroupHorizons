@@ -14,6 +14,7 @@ public class AsteroidBehaviour : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private Rigidbody2D _rigidbody;
     private Transform _transform;
+    private int _boundaryCollisionCount;
 
     private void Awake()
     {
@@ -28,12 +29,37 @@ public class AsteroidBehaviour : MonoBehaviour
 
         _rigidbody.mass = size;
         _rigidbody.AddForce(_transform.forward * speed);
+        _rigidbody.AddTorque(12 * size);
         _transform.eulerAngles = new Vector3(0, 0, Random.value * 360);
         _transform.localScale = Vector3.one * size;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Destroy(this.gameObject);
+        Debug.Log($"Asteroid colliding");
+
+        var isBoundaryCollision = collision.collider.IsTouchingLayers(LayerMask.GetMask("Boundary"));
+        if (isBoundaryCollision)
+        {
+            _boundaryCollisionCount++;
+        }
+
+        if (_boundaryCollisionCount > 1)
+        {
+            Destroy(this.gameObject);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        var isBoundaryCollision = collision.gameObject.layer == LayerMask.NameToLayer("Boundary");
+        if (isBoundaryCollision)
+        {
+            _boundaryCollisionCount++;
+        }
+        if (_boundaryCollisionCount > 1)
+        {
+            Destroy(this.gameObject);
+        }
     }
 }
