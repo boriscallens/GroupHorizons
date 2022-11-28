@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 using Vector2 = UnityEngine.Vector2;
 
@@ -35,11 +35,61 @@ public class AsteroidSpawnBehaviour : MonoBehaviour
             if (hits.collider == null) continue;
             if (hits.distance < spawnMinimumDistanceToPlayer) continue;
 
-            var position = hits.point;
-            var rotation = Quaternion.LookRotation(transformPosition - position, Vector3.up);
-            var asteroid = Instantiate(asteroidPrefab, position, rotation);
-            asteroid.size = Random.Range(asteroid.minSize, asteroid.maxSize);
+            var asteroidParameters = new AsteroidParameters
+            {
+                AsteroidPrefab = asteroidPrefab,
+                Position = hits.point,
+                Rotation = Quaternion.LookRotation(transformPosition - hits.point, Vector3.up)
+            };
+
+            Create(asteroidParameters);
             return;
         }
     }
+
+    public static IEnumerable<AsteroidBehaviour> Create(params AsteroidParameters[] asteroidParameters)
+    {
+        Debug.Log($"Creating {asteroidParameters.Length} asteroids");
+
+        var asteroids = new AsteroidBehaviour[asteroidParameters.Length];
+        for (var i = 0; i < asteroidParameters.Length; i++)
+        {
+            var asteroidParameter = asteroidParameters[i];
+            asteroids[i] = Instantiate(asteroidParameter.AsteroidPrefab, asteroidParameter.Position, asteroidParameter.Rotation);
+            asteroids[i].size = asteroidParameter.Size;
+            if (asteroidParameter.Sprite != null)
+            {
+                asteroids[i].SetSprite(asteroidParameter.Sprite);
+            }
+        }
+        return asteroids;
+    }
+}
+
+public class AsteroidParameters
+{
+    private float? _size;
+    private Quaternion? _rotation;
+
+    public AsteroidBehaviour AsteroidPrefab { get; set; }
+    public Vector3 Position { get; set; }
+    public float Size
+    {
+        get
+        {
+            _size ??= Random.Range(AsteroidPrefab.minSize, AsteroidPrefab.maxSize);
+            return _size.Value;
+        }
+        set => _size = value;
+    }
+    public Quaternion Rotation
+    {
+        get
+        {
+            _rotation ??= Random.rotation;
+            return _rotation.Value;
+        }
+        set => _rotation = value;
+    }
+    public Sprite Sprite { get; set; }
 }

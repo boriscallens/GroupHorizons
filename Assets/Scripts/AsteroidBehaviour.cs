@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
@@ -14,8 +15,7 @@ public class AsteroidBehaviour : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private Rigidbody2D _rigidbody;
     private Transform _transform;
-    private int _boundaryCollisionCount;
-
+    
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
@@ -25,41 +25,53 @@ public class AsteroidBehaviour : MonoBehaviour
 
     private void Start()
     {
-        _spriteRenderer.sprite = sprites[Random.Range(0, sprites.Length)];
-
         _rigidbody.mass = size;
         _rigidbody.AddForce(_transform.forward * speed);
         _rigidbody.AddTorque(12 * size);
         _transform.eulerAngles = new Vector3(0, 0, Random.value * 360);
         _transform.localScale = Vector3.one * size;
+        SetSprite(sprites[Random.Range(0, sprites.Length)]);
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    public void SetSprite(Sprite sprite)
     {
-        Debug.Log($"Asteroid colliding");
+        _spriteRenderer.sprite = sprite;
+    }
 
-        var isBoundaryCollision = collision.collider.IsTouchingLayers(LayerMask.GetMask("Boundary"));
-        if (isBoundaryCollision)
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        var isDespawnCollision = collision.gameObject.layer == LayerMask.NameToLayer("DespawnBoundary");
+        var isPlayerCollision = collision.gameObject.layer == LayerMask.NameToLayer("Player");
+        var isBulletCollision = collision.gameObject.layer == LayerMask.NameToLayer("Bullet");
+
+        if (isDespawnCollision)
         {
-            _boundaryCollisionCount++;
+            Destroy(this.gameObject);
         }
-
-        if (_boundaryCollisionCount > 1)
+        if (isBulletCollision)
         {
+            SplitAsteroid();
+            Destroy(collision.gameObject);
             Destroy(this.gameObject);
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    private void SplitAsteroid()
     {
-        var isBoundaryCollision = collision.gameObject.layer == LayerMask.NameToLayer("Boundary");
-        if (isBoundaryCollision)
-        {
-            _boundaryCollisionCount++;
-        }
-        if (_boundaryCollisionCount > 1)
-        {
-            Destroy(this.gameObject);
-        }
+        const int splitNumber = 2;
+        var splitSize = size / splitNumber;
+        if (splitSize < minSize) return;
+
+        var transformPosition = transform.position;
+        var parameters = Enumerable.Range(0, splitNumber)
+            .Select(_ => (Vector3)Random.insideUnitCircle)
+            .Select(displacement => new AsteroidParameters
+            {
+                AsteroidPrefab = this,
+                Position = transformPosition + displacement,
+                Size = splitSize,
+                Sprite = this._spriteRenderer.sprite
+            }).ToArray();
+        AsteroidSpawnBehaviour.Create(parameters);
     }
 }
