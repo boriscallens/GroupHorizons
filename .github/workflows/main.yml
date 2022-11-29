@@ -167,7 +167,7 @@ jobs:
 
       - name: Upload webgl to itch.io
         uses: robpc/itchio-upload-action@v1
-        if: matrix.targetPlatform == 'WebGL'
+        # if: matrix.targetPlatform == 'WebGL'
         # if: ${{ matrix.targetPlatform == 'WebGL' }}
         with:
           path: bin/${{ env.NAME}}-WebGL-${{ needs.build.outputs.version }}.zip
