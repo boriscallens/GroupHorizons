@@ -67,6 +67,7 @@ jobs:
     needs: test
     outputs:
       version: ${{ steps.buildStep.outputs.buildVersion }}
+      targetPlatform: ${{ matrix.targetPlatform }}
     strategy:
       fail-fast: false
       matrix:
@@ -169,6 +170,7 @@ jobs:
         uses: robpc/itchio-upload-action@v1
         # if: matrix.targetPlatform == 'WebGL'
         # if: ${{ matrix.targetPlatform == 'WebGL' }}
+        if: ${{ needs.build.outputs.targetPlatform == 'WebGL' }}
         with:
           path: bin/${{ env.NAME}}-WebGL-${{ needs.build.outputs.version }}.zip
           project: boersnoes/${{ env.NAME}}
