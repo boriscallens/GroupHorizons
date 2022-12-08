@@ -245,8 +245,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   asteroidPrefab: {fileID: 4545932153646026830, guid: 5373696271f177547b63d5cd1000b6a9, type: 3}
   player: {fileID: 1633944334}
-  spawnRate: 1
-  spawnMinimumDistanceToPlayer: 1
+  spawnRate: 0.8
+  spawnMinimumDistanceToPlayer: 1.1
 --- !u!61 &103374278
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -767,7 +767,7 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 0.5
-  m_LinearDrag: 0.7
+  m_LinearDrag: 0.6
   m_AngularDrag: 1
   m_GravityScale: 0
   m_Material: {fileID: 0}
@@ -788,7 +788,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thrustSpeed: 1.1
-  turnSpeed: 0.5
+  turnSpeed: 0.75
   bulletPrefab: {fileID: 4386629682587086711, guid: e825fc6d9ecf1104c9a9869d87057941, type: 3}
 --- !u!1 &2026440301
 GameObject:
