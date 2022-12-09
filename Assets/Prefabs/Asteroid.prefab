@@ -136,8 +136,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0ca347aa9c118fb40a1703fc4b943208, type: 3}
   size: 1
   speed: 60
-  minSize: 1
-  maxSize: 1.7
+  minSize: 1.1
+  maxSize: 2
 --- !u!50 &4855592434316221511
 Rigidbody2D:
   serializedVersion: 4
