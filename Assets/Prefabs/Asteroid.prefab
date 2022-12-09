@@ -126,18 +126,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sprites:
+  - {fileID: 21300000, guid: a8b91dbab1be13a44abd6da5678d6853, type: 3}
+  - {fileID: 21300000, guid: 4d3b513e7921ab44f8065d611f8e78c2, type: 3}
   - {fileID: 21300000, guid: 7161ad91d24a62b4085baaf731b58d6d, type: 3}
   - {fileID: 21300000, guid: ed5db94e0dbea3a4a8a2e48dc5cbcea6, type: 3}
   - {fileID: 21300000, guid: 70f728c5d3e97a84eb214c3708cf1d96, type: 3}
+  - {fileID: 21300000, guid: 66a3aa019f123054ca94953651c40b42, type: 3}
   - {fileID: 21300000, guid: 579e1efb88add8349891b2ddc65224b6, type: 3}
+  - {fileID: 21300000, guid: 5762b93b6c9cd7944b474b1f44213d24, type: 3}
+  - {fileID: 21300000, guid: 2d1af79e12e3a2744b9051fa5f7378a1, type: 3}
   - {fileID: 21300000, guid: a53409cf7f3099e49bb41b8dfec4b154, type: 3}
   - {fileID: 21300000, guid: 80439aaa00e6cb746a5b258963c2d4b0, type: 3}
+  - {fileID: 21300000, guid: 2e173983bbf7f7645b458f14ee66a15b, type: 3}
   - {fileID: 21300000, guid: 2ed4b84e38166724d8e52545a40b6f4d, type: 3}
   - {fileID: 21300000, guid: 0ca347aa9c118fb40a1703fc4b943208, type: 3}
-  size: 1
+  size: 1.7
   speed: 60
-  minSize: 1.1
-  maxSize: 2
+  minSize: 1.7
+  maxSize: 1.9
 --- !u!50 &4855592434316221511
 Rigidbody2D:
   serializedVersion: 4
